@@ -187,23 +187,24 @@ button.search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 `;
 
-interface Product {
-  id: number;
-  title: string;
-  store: string;
-  price: number;
-  emoji: string;
-  link?: string;
-}
+// Note: Interfaces are commented out as they are TypeScript-specific and can cause issues in strict JavaScript environments.
+// interface Product {
+//   id: number;
+//   title: string;
+//   store: string;
+//   price: number;
+//   emoji: string;
+//   link?: string;
+// }
 
 const App = () => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Product[]>([]);
-  const [savedItems, setSavedItems] = useState<Product[]>([]);
+  const [results, setResults] = useState([]); // Array<Product>
+  const [savedItems, setSavedItems] = useState([]); // Array<Product>
   const [loading, setLoading] = useState(false);
   const [sort, setSort] = useState('relevance');
   const [cartOpen, setCartOpen] = useState(false);
-  const [linkStatuses, setLinkStatuses] = useState<Record<number, 'none' | 'checking' | 'valid'>>({});
+  const [linkStatuses, setLinkStatuses] = useState({}); // Record<number, 'none' | 'checking' | 'valid'>
 
   // Initialize saved items from local storage
   useEffect(() => {
@@ -223,6 +224,7 @@ const App = () => {
     setResults([]);
 
     try {
+      // API Key embedded directly as requested
       const ai = new GoogleGenAI({ apiKey: "AIzaSyDHmZDE4qx9b2okF8rhkumvfHaBHqzHQvA" });
       
       const prompt = `Generate a list of 12 realistic fashion products for the search query: "${query}". 
@@ -253,7 +255,7 @@ const App = () => {
         },
       });
 
-      let items: Product[] = [];
+      let items = [];
       if (response.text) {
         items = JSON.parse(response.text);
         // Ensure IDs are unique enough for this session
@@ -275,7 +277,7 @@ const App = () => {
     return 0; // relevance (default order)
   });
 
-  const toggleSave = (item: Product) => {
+  const toggleSave = (item) => {
     const exists = savedItems.find(i => i.id === item.id);
     let newSaved;
     if (exists) {
@@ -287,13 +289,13 @@ const App = () => {
     localStorage.setItem('threadHuntCart', JSON.stringify(newSaved));
   };
 
-  const removeItem = (id: number) => {
+  const removeItem = (id) => {
     const newSaved = savedItems.filter(i => i.id !== id);
     setSavedItems(newSaved);
     localStorage.setItem('threadHuntCart', JSON.stringify(newSaved));
   };
 
-  const checkLink = (id: number) => {
+  const checkLink = (id) => {
     if (linkStatuses[id]) return;
     
     setLinkStatuses(prev => ({ ...prev, [id]: 'checking' }));
@@ -425,5 +427,5 @@ const App = () => {
   );
 };
 
-const root = createRoot(document.getElementById('app')!);
+const root = createRoot(document.getElementById('app'));
 root.render(<App />);
